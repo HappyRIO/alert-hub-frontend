@@ -1,4 +1,6 @@
-const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:8000/api";
+import { handleMock } from "./mockApi";
+
+const API_BASE = "mock://api";
 
 const ACCESS_KEY = "alerthub_access_token";
 const REFRESH_KEY = "alerthub_refresh_token";
@@ -28,13 +30,9 @@ async function doRefresh(): Promise<boolean> {
   const r = tokens.refresh;
   if (!r) return false;
   try {
-    const res = await fetch(`${API_BASE}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: r }),
-    });
-    if (!res.ok) return false;
-    const data = await res.json();
+    const res = await handleMock("POST", "/auth/refresh", { refresh_token: r });
+    if (res.status >= 400) return false;
+    const data = res.json;
     tokens.set(data.access_token, data.refresh_token);
     return true;
   } catch {
@@ -46,15 +44,10 @@ export async function api<T = any>(
   path: string,
   opts: RequestInit & { auth?: boolean; raw?: boolean } = {},
 ): Promise<T> {
-  const { auth = true, raw = false, headers, ...rest } = opts;
-  const make = async (): Promise<Response> => {
-    const h: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(headers as Record<string, string> | undefined),
-    };
-    if (auth && tokens.access) h["Authorization"] = `Bearer ${tokens.access}`;
-    return fetch(`${API_BASE}${path}`, { ...rest, headers: h });
-  };
+  const { auth = true, method = "GET", body } = opts;
+  const parsedBody = typeof body === "string" ? safeParse(body) : body;
+  const make = () =>
+    handleMock(method as string, path, parsedBody, auth && tokens.access ? `Bearer ${tokens.access}` : undefined);
 
   let res = await make();
   if (res.status === 401 && auth && tokens.refresh) {
@@ -68,17 +61,15 @@ export async function api<T = any>(
       throw new Error("Session expired");
     }
   }
-  if (!res.ok) {
-    let msg = `Request failed (${res.status})`;
-    try {
-      const j = await res.json();
-      msg = j.detail || j.message || JSON.stringify(j);
-    } catch {}
+  if (res.status >= 400) {
+    const msg = res.json?.detail || res.json?.message || `Request failed (${res.status})`;
     throw new Error(msg);
   }
-  if (raw) return res as any;
-  if (res.status === 204) return undefined as any;
-  return res.json();
+  return res.json as T;
+}
+
+function safeParse(s: string): any {
+  try { return JSON.parse(s); } catch { return s; }
 }
 
 export { API_BASE };
