@@ -14,6 +14,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAccountIndexRouteImport } from './routes/dashboard.account.index'
+import { Route as DashboardAccountConnectTelegramRouteImport } from './routes/dashboard.account.connect.telegram'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -40,6 +41,12 @@ const DashboardAccountIndexRoute = DashboardAccountIndexRouteImport.update({
   path: '/account/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAccountConnectTelegramRoute =
+  DashboardAccountConnectTelegramRouteImport.update({
+    id: '/account/connect/telegram',
+    path: '/account/connect/telegram',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,12 +54,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/account/': typeof DashboardAccountIndexRoute
+  '/dashboard/account/connect/telegram': typeof DashboardAccountConnectTelegramRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/account': typeof DashboardAccountIndexRoute
+  '/dashboard/account/connect/telegram': typeof DashboardAccountConnectTelegramRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,6 +70,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/account/': typeof DashboardAccountIndexRoute
+  '/dashboard/account/connect/telegram': typeof DashboardAccountConnectTelegramRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -70,8 +80,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/'
     | '/dashboard/account/'
+    | '/dashboard/account/connect/telegram'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/dashboard/account'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard'
+    | '/dashboard/account'
+    | '/dashboard/account/connect/telegram'
   id:
     | '__root__'
     | '/'
@@ -79,6 +95,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/dashboard/'
     | '/dashboard/account/'
+    | '/dashboard/account/connect/telegram'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -124,17 +141,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAccountIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/account/connect/telegram': {
+      id: '/dashboard/account/connect/telegram'
+      path: '/account/connect/telegram'
+      fullPath: '/dashboard/account/connect/telegram'
+      preLoaderRoute: typeof DashboardAccountConnectTelegramRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardAccountIndexRoute: typeof DashboardAccountIndexRoute
+  DashboardAccountConnectTelegramRoute: typeof DashboardAccountConnectTelegramRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardAccountIndexRoute: DashboardAccountIndexRoute,
+  DashboardAccountConnectTelegramRoute: DashboardAccountConnectTelegramRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
