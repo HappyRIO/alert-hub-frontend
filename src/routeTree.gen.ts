@@ -13,8 +13,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
-import { Route as DashboardTelegramRouteImport } from './routes/dashboard.telegram'
-import { Route as DashboardPushRouteImport } from './routes/dashboard.push'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -36,30 +34,16 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardTelegramRoute = DashboardTelegramRouteImport.update({
-  id: '/telegram',
-  path: '/telegram',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardPushRoute = DashboardPushRouteImport.update({
-  id: '/push',
-  path: '/push',
-  getParentRoute: () => DashboardRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
-  '/dashboard/push': typeof DashboardPushRoute
-  '/dashboard/telegram': typeof DashboardTelegramRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/dashboard/push': typeof DashboardPushRoute
-  '/dashboard/telegram': typeof DashboardTelegramRoute
   '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
@@ -67,29 +51,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
-  '/dashboard/push': typeof DashboardPushRoute
-  '/dashboard/telegram': typeof DashboardTelegramRoute
   '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/dashboard/push'
-    | '/dashboard/telegram'
-    | '/dashboard/'
+  fullPaths: '/' | '/dashboard' | '/login' | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard/push' | '/dashboard/telegram' | '/dashboard'
-  id:
-    | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/dashboard/push'
-    | '/dashboard/telegram'
-    | '/dashboard/'
+  to: '/' | '/login' | '/dashboard'
+  id: '__root__' | '/' | '/dashboard' | '/login' | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,32 +97,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/telegram': {
-      id: '/dashboard/telegram'
-      path: '/telegram'
-      fullPath: '/dashboard/telegram'
-      preLoaderRoute: typeof DashboardTelegramRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/push': {
-      id: '/dashboard/push'
-      path: '/push'
-      fullPath: '/dashboard/push'
-      preLoaderRoute: typeof DashboardPushRouteImport
-      parentRoute: typeof DashboardRoute
-    }
   }
 }
 
 interface DashboardRouteChildren {
-  DashboardPushRoute: typeof DashboardPushRoute
-  DashboardTelegramRoute: typeof DashboardTelegramRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardPushRoute: DashboardPushRoute,
-  DashboardTelegramRoute: DashboardTelegramRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
@@ -169,3 +120,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
