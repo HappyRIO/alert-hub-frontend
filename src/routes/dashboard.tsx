@@ -13,11 +13,11 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
 });
 
-const navItems = [
+const navItems: { to: "/dashboard" | "/dashboard/telegram" | "/dashboard/push"; label: string; exact?: boolean }[] = [
   { to: "/dashboard", label: "Notifications", exact: true },
   { to: "/dashboard/telegram", label: "Telegram" },
   { to: "/dashboard/push", label: "Push" },
-] as const;
+];
 
 function DashboardLayout() {
   const { isAuthenticated, loading, logout } = useAuth();
