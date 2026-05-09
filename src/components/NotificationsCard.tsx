@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import lottie from "lottie-web";
 import { ungzip } from "pako";
 import {
   Search,
@@ -87,9 +86,10 @@ function TgsSticker({ url, className }: { url: string; className?: string }) {
 
   useEffect(() => {
     let active = true;
-    let animation: ReturnType<typeof lottie.loadAnimation> | null = null;
+    let animation: { destroy: () => void } | null = null;
     const load = async () => {
       try {
+        const { default: lottie } = await import("lottie-web");
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to load sticker");
         const buf = await res.arrayBuffer();

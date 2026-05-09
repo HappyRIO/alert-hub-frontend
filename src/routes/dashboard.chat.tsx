@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import lottie from "lottie-web";
 import { ungzip } from "pako";
 import {
   SendHorizontal,
@@ -135,9 +134,10 @@ function TgsSticker({
 
   useEffect(() => {
     let active = true;
-    let animation: ReturnType<typeof lottie.loadAnimation> | null = null;
+    let animation: { destroy: () => void } | null = null;
     const load = async () => {
       try {
+        const { default: lottie } = await import("lottie-web");
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to load sticker");
         const buf = await res.arrayBuffer();
