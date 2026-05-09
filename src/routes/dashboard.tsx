@@ -34,6 +34,7 @@ function DashboardLayout() {
 
   const title =
     path.startsWith("/dashboard/account") ? "Accounts" :
+    path.startsWith("/dashboard/chat") ? "Chat" :
     path.startsWith("/dashboard/settings") ? "Settings" :
     "Notifications";
 

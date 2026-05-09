@@ -9,16 +9,17 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Unified notification dashboard for Telegram and beyond." },
     ],
   }),
-  component: Index,
+  component: IndexPage,
 });
 
-function Index() {
+function IndexPage() {
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
     if (loading) return;
-    navigate({ to: isAuthenticated ? "/dashboard" : "/login" });
+    navigate({ to: isAuthenticated ? "/notifications" : "/login" });
   }, [isAuthenticated, loading, navigate]);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <p className="text-sm text-muted-foreground">Loading…</p>

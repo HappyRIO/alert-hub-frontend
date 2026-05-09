@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Bell, Eye, EyeOff, Mail, KeyRound } from "lucide-react";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, tokens } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,7 +35,7 @@ function PwInput({ id, value, onChange, autoComplete }: { id: string; value: str
   );
 }
 
-function SettingsPage() {
+export function SettingsPage() {
   const [pushOn, setPushOn] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
 
@@ -68,7 +68,13 @@ function SettingsPage() {
     e.preventDefault();
     setBusyEmail(true);
     try {
-      await api("/me/email", { method: "PUT", body: JSON.stringify({ new_email: newEmail, password: emailPw }) });
+      const data = await api<{ access_token?: string; refresh_token?: string }>("/me/email", {
+        method: "PUT",
+        body: JSON.stringify({ new_email: newEmail, password: emailPw }),
+      });
+      if (data.access_token && data.refresh_token) {
+        tokens.set(data.access_token, data.refresh_token);
+      }
       toast.success("Email updated");
       setMe(newEmail); setEmailPw("");
     } catch (e: any) { toast.error(e.message); }

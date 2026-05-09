@@ -1,6 +1,5 @@
-import { handleMock } from "./mockApi";
-
-const API_BASE = "mock://api";
+const API_BASE =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") || "http://localhost:8000/api";
 
 const ACCESS_KEY = "alerthub_access_token";
 const REFRESH_KEY = "alerthub_refresh_token";
@@ -30,9 +29,13 @@ async function doRefresh(): Promise<boolean> {
   const r = tokens.refresh;
   if (!r) return false;
   try {
-    const res = await handleMock("POST", "/auth/refresh", { refresh_token: r });
+    const res = await fetch(`${API_BASE}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: r }),
+    });
     if (res.status >= 400) return false;
-    const data = res.json;
+    const data = await res.json();
     tokens.set(data.access_token, data.refresh_token);
     return true;
   } catch {
@@ -40,14 +43,53 @@ async function doRefresh(): Promise<boolean> {
   }
 }
 
+const DEFAULT_TIMEOUT_MS = 15000;
+
 export async function api<T = any>(
   path: string,
-  opts: RequestInit & { auth?: boolean; raw?: boolean } = {},
+  opts: RequestInit & { auth?: boolean; raw?: boolean; timeoutMs?: number } = {},
 ): Promise<T> {
-  const { auth = true, method = "GET", body } = opts;
-  const parsedBody = typeof body === "string" ? safeParse(body) : body;
-  const make = () =>
-    handleMock(method as string, path, parsedBody, auth && tokens.access ? `Bearer ${tokens.access}` : undefined);
+  const {
+    auth = true,
+    method = "GET",
+    body,
+    headers,
+    raw = false,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    signal,
+    ...rest
+  } = opts;
+  const make = () => {
+    const requestHeaders = new Headers(headers || {});
+    const hasBody = body !== undefined && body !== null;
+    const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+    if (hasBody && !isFormData && !requestHeaders.has("Content-Type")) {
+      requestHeaders.set("Content-Type", "application/json");
+    }
+    if (auth && tokens.access) {
+      requestHeaders.set("Authorization", `Bearer ${tokens.access}`);
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    if (signal) {
+      if (signal.aborted) controller.abort();
+      else signal.addEventListener("abort", () => controller.abort(), { once: true });
+    }
+    return fetch(`${API_BASE}${path}`, {
+      method,
+      body,
+      headers: requestHeaders,
+      signal: controller.signal,
+      ...rest,
+    })
+      .catch((err) => {
+        if (err?.name === "AbortError") {
+          throw new Error(`Request timed out after ${timeoutMs}ms (${method} ${path})`);
+        }
+        throw new Error(err?.message || `Network error (${method} ${path})`);
+      })
+      .finally(() => clearTimeout(timer));
+  };
 
   let res = await make();
   if (res.status === 401 && auth && tokens.refresh) {
@@ -62,14 +104,16 @@ export async function api<T = any>(
     }
   }
   if (res.status >= 400) {
-    const msg = res.json?.detail || res.json?.message || `Request failed (${res.status})`;
+    let payload: any = null;
+    try {
+      payload = await res.json();
+    } catch {}
+    const msg = payload?.detail || payload?.message || `Request failed (${res.status})`;
     throw new Error(msg);
   }
-  return res.json as T;
-}
-
-function safeParse(s: string): any {
-  try { return JSON.parse(s); } catch { return s; }
+  if (raw) return (res as T);
+  if (res.status === 204) return undefined as T;
+  return (await res.json()) as T;
 }
 
 export { API_BASE };

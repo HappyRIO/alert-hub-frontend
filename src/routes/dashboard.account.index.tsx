@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { CHANNELS, channelFor } from "@/lib/channels";
 import type { AccountRec } from "@/lib/mockApi";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/dashboard/account/")({
@@ -19,6 +23,10 @@ export const Route = createFileRoute("/dashboard/account/")({
   }),
   component: AccountsPage,
 });
+
+function accountDisplayName(a: AccountRec): string {
+  return a.display_name || a.label || a.username || "Unnamed account";
+}
 
 function StatusDot({ status }: { status: AccountRec["status"] }) {
   const map = {
@@ -35,7 +43,7 @@ function statusLabel(s: AccountRec["status"]) {
   return s === "active" ? "Active" : s === "muted" ? "Notifications muted" : "Disconnected";
 }
 
-function AccountsPage() {
+export function AccountsPage() {
   const [accounts, setAccounts] = useState<AccountRec[]>([]);
   const [loading, setLoading] = useState(true);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -46,27 +54,36 @@ function AccountsPage() {
     try {
       const data = await api<AccountRec[]>("/accounts");
       setAccounts(data);
-    } catch (e: any) { toast.error(e.message); }
-    finally { setLoading(false); }
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const action = async (a: AccountRec, op: string, msg: string) => {
     try {
       await api(`/accounts/${a.id}/${op}`, { method: "POST" });
       toast.success(msg);
       load();
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const remove = async (a: AccountRec) => {
-    if (!confirm(`Remove "${a.label}" permanently?`)) return;
+    if (!confirm(`Remove "${accountDisplayName(a)}" permanently?`)) return;
     try {
       await api(`/accounts/${a.id}`, { method: "DELETE" });
       toast.success("Account removed");
       load();
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const pick = (type: string, available: boolean) => {
@@ -75,7 +92,7 @@ function AccountsPage() {
       toast("Coming Soon", { description: `${type} support is on the way.` });
       return;
     }
-    if (type === "telegram") navigate({ to: "/dashboard/account/connect/telegram" });
+    if (type === "telegram") navigate({ to: "/account/connect/telegram" });
   };
 
   return (
@@ -97,7 +114,8 @@ function AccountsPage() {
           {loading && <li className="text-sm text-muted-foreground">Loading…</li>}
           {!loading && accounts.length === 0 && (
             <li className="rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-              No accounts yet. Click <span className="font-medium text-foreground">Add account</span> to connect one.
+              No accounts yet. Click{" "}
+              <span className="font-medium text-foreground">Add account</span> to connect one.
             </li>
           )}
           {accounts.map((a) => {
@@ -108,12 +126,16 @@ function AccountsPage() {
                 key={a.id}
                 className="group flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-md animate-fade-in"
               >
-                <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-accent/50 ${ch.color}`}>
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg bg-accent/50 ${ch.color}`}
+                >
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-foreground truncate">{a.label}</span>
+                    <span className="font-medium text-foreground truncate">
+                      {accountDisplayName(a)}
+                    </span>
                     <span className="text-xs text-muted-foreground">· {ch.label}</span>
                   </div>
                   <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
@@ -125,25 +147,46 @@ function AccountsPage() {
                 <div className="flex flex-wrap items-center gap-1.5">
                   {a.status === "active" && (
                     <>
-                      <Button size="sm" variant="ghost" onClick={() => action(a, "mute", "Notifications muted")}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => action(a, "mute", "Notifications muted")}
+                      >
                         <BellOff className="h-4 w-4" /> Mute
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => action(a, "disconnect", "Account disconnected")}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => action(a, "disconnect", "Account disconnected")}
+                      >
                         <PowerOff className="h-4 w-4" /> Disconnect
                       </Button>
                     </>
                   )}
                   {a.status === "muted" && (
-                    <Button size="sm" variant="ghost" onClick={() => action(a, "unmute", "Notifications enabled")}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => action(a, "unmute", "Notifications enabled")}
+                    >
                       <Bell className="h-4 w-4" /> Unmute
                     </Button>
                   )}
                   {a.status === "disconnected" && (
-                    <Button size="sm" variant="ghost" onClick={() => action(a, "reconnect", "Reconnected")}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => action(a, "reconnect", "Reconnected")}
+                    >
                       <Power className="h-4 w-4" /> Reconnect
                     </Button>
                   )}
-                  <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => remove(a)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => remove(a)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -168,12 +211,16 @@ function AccountsPage() {
                   onClick={() => pick(c.type, c.available)}
                   className="group relative flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-4 text-center transition-all hover:border-primary/60 hover-lift"
                 >
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-accent/50 ${c.color} transition-transform group-hover:scale-110`}>
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg bg-accent/50 ${c.color} transition-transform group-hover:scale-110`}
+                  >
                     <Icon className="h-5 w-5" />
                   </div>
                   <span className="text-sm font-medium">{c.label}</span>
                   {!c.available && (
-                    <span className="text-[10px] rounded-full bg-muted px-2 py-0.5 text-muted-foreground">Coming Soon</span>
+                    <span className="text-[10px] rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                      Coming Soon
+                    </span>
                   )}
                 </button>
               );

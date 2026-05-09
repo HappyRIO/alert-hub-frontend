@@ -9,14 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
+import { Route as DashboardChatRouteImport } from './routes/dashboard.chat'
 import { Route as DashboardAccountIndexRouteImport } from './routes/dashboard.account.index'
+import { Route as AccountConnectTelegramRouteImport } from './routes/account.connect.telegram'
 import { Route as DashboardAccountConnectTelegramRouteImport } from './routes/dashboard.account.connect.telegram'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -25,6 +42,16 @@ const LoginRoute = LoginRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,15 +64,30 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountRoute,
+} as any)
 const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardChatRoute = DashboardChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardAccountIndexRoute = DashboardAccountIndexRouteImport.update({
   id: '/account/',
   path: '/account/',
   getParentRoute: () => DashboardRoute,
+} as any)
+const AccountConnectTelegramRoute = AccountConnectTelegramRouteImport.update({
+  id: '/connect/telegram',
+  path: '/connect/telegram',
+  getParentRoute: () => AccountRoute,
 } as any)
 const DashboardAccountConnectTelegramRoute =
   DashboardAccountConnectTelegramRouteImport.update({
@@ -56,28 +98,48 @@ const DashboardAccountConnectTelegramRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRouteWithChildren
+  '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/notifications': typeof NotificationsRoute
+  '/settings': typeof SettingsRoute
+  '/dashboard/chat': typeof DashboardChatRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/account/': typeof AccountIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/account/connect/telegram': typeof AccountConnectTelegramRoute
   '/dashboard/account/': typeof DashboardAccountIndexRoute
   '/dashboard/account/connect/telegram': typeof DashboardAccountConnectTelegramRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/login': typeof LoginRoute
+  '/notifications': typeof NotificationsRoute
+  '/settings': typeof SettingsRoute
+  '/dashboard/chat': typeof DashboardChatRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/account': typeof AccountIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/account/connect/telegram': typeof AccountConnectTelegramRoute
   '/dashboard/account': typeof DashboardAccountIndexRoute
   '/dashboard/account/connect/telegram': typeof DashboardAccountConnectTelegramRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRouteWithChildren
+  '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
+  '/notifications': typeof NotificationsRoute
+  '/settings': typeof SettingsRoute
+  '/dashboard/chat': typeof DashboardChatRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/account/': typeof AccountIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/account/connect/telegram': typeof AccountConnectTelegramRoute
   '/dashboard/account/': typeof DashboardAccountIndexRoute
   '/dashboard/account/connect/telegram': typeof DashboardAccountConnectTelegramRoute
 }
@@ -85,39 +147,77 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
+    | '/chat'
     | '/dashboard'
     | '/login'
+    | '/notifications'
+    | '/settings'
+    | '/dashboard/chat'
     | '/dashboard/settings'
+    | '/account/'
     | '/dashboard/'
+    | '/account/connect/telegram'
     | '/dashboard/account/'
     | '/dashboard/account/connect/telegram'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/chat'
     | '/login'
+    | '/notifications'
+    | '/settings'
+    | '/dashboard/chat'
     | '/dashboard/settings'
+    | '/account'
     | '/dashboard'
+    | '/account/connect/telegram'
     | '/dashboard/account'
     | '/dashboard/account/connect/telegram'
   id:
     | '__root__'
     | '/'
+    | '/account'
+    | '/chat'
     | '/dashboard'
     | '/login'
+    | '/notifications'
+    | '/settings'
+    | '/dashboard/chat'
     | '/dashboard/settings'
+    | '/account/'
     | '/dashboard/'
+    | '/account/connect/telegram'
     | '/dashboard/account/'
     | '/dashboard/account/connect/telegram'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRouteWithChildren
+  ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
+  NotificationsRoute: typeof NotificationsRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -130,6 +230,20 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -146,11 +260,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/account/': {
+      id: '/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/dashboard/settings': {
       id: '/dashboard/settings'
       path: '/settings'
       fullPath: '/dashboard/settings'
       preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/chat': {
+      id: '/dashboard/chat'
+      path: '/chat'
+      fullPath: '/dashboard/chat'
+      preLoaderRoute: typeof DashboardChatRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/account/': {
@@ -159,6 +287,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/account/'
       preLoaderRoute: typeof DashboardAccountIndexRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/account/connect/telegram': {
+      id: '/account/connect/telegram'
+      path: '/connect/telegram'
+      fullPath: '/account/connect/telegram'
+      preLoaderRoute: typeof AccountConnectTelegramRouteImport
+      parentRoute: typeof AccountRoute
     }
     '/dashboard/account/connect/telegram': {
       id: '/dashboard/account/connect/telegram'
@@ -170,7 +305,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AccountRouteChildren {
+  AccountIndexRoute: typeof AccountIndexRoute
+  AccountConnectTelegramRoute: typeof AccountConnectTelegramRoute
+}
+
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountIndexRoute: AccountIndexRoute,
+  AccountConnectTelegramRoute: AccountConnectTelegramRoute,
+}
+
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
+
 interface DashboardRouteChildren {
+  DashboardChatRoute: typeof DashboardChatRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardAccountIndexRoute: typeof DashboardAccountIndexRoute
@@ -178,6 +327,7 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardChatRoute: DashboardChatRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardAccountIndexRoute: DashboardAccountIndexRoute,
@@ -190,8 +340,12 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRouteWithChildren,
+  ChatRoute: ChatRoute,
   DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
+  NotificationsRoute: NotificationsRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

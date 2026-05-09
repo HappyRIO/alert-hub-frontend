@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ConnectTelegramPage } from "@/components/app/ConnectTelegramPage";
 
-export const Route = createFileRoute("/dashboard/account/connect/telegram")({
+export const Route = createFileRoute("/account/connect/telegram")({
   head: () => ({
     meta: [
       { title: "Connect Telegram — Alert Hub" },

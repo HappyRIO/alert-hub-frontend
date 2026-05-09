@@ -20,23 +20,34 @@ function LoginPage() {
   const { login, register, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("dev@test.com");
-  const [password, setPassword] = useState("test123!@#");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && isAuthenticated) navigate({ to: "/dashboard" });
+    if (!loading && isAuthenticated) navigate({ to: "/notifications" });
   }, [loading, isAuthenticated, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBusy(true); setErr(null);
+    setBusy(true); setErr(null); setInfo(null);
     try {
-      if (mode === "login") await login(email, password);
-      else await register(email, password);
-      navigate({ to: "/dashboard" });
+      if (mode === "login") {
+        await login(email, password);
+        navigate({ to: "/notifications" });
+      } else {
+        const result = await register(name, email, password);
+        setMode("login");
+        setPassword("");
+        setInfo(
+          result.message ||
+            "Account created and is pending activation. Please contact an administrator.",
+        );
+      }
     } catch (e: any) {
       setErr(e.message || "Authentication failed");
     } finally { setBusy(false); }
@@ -59,6 +70,18 @@ function LoginPage() {
         </div>
 
         <form onSubmit={submit} className="space-y-4">
+          {mode === "register" && (
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+              />
+            </div>
+          )}
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
@@ -85,6 +108,11 @@ function LoginPage() {
               </button>
             </div>
           </div>
+          {info && (
+            <p className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-foreground animate-fade-in">
+              {info}
+            </p>
+          )}
           {err && <p className="text-sm text-destructive animate-fade-in">{err}</p>}
           <Button type="submit" className="w-full" disabled={busy}>
             {busy ? "Please wait..." : mode === "login" ? "Sign in" : "Create account"}
@@ -92,7 +120,11 @@ function LoginPage() {
         </form>
 
         <button
-          onClick={() => { setMode(mode === "login" ? "register" : "login"); setErr(null); }}
+          onClick={() => {
+            setMode(mode === "login" ? "register" : "login");
+            setErr(null);
+            setInfo(null);
+          }}
           className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {mode === "login" ? "Need an account? Register" : "Have an account? Sign in"}
