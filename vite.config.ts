@@ -6,5 +6,16 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  plugins: [tanstackStart(), nitro({ preset: "vercel" }), react(), tailwindcss(), tsconfigPaths()],
+  plugins: [
+    tanstackStart(),
+    nitro({
+      preset: "vercel",
+      // SSR chunks emit `import "tslib"`; Vercel's lambda bundle often has no node_modules for it.
+      // Inlining avoids ERR_MODULE_NOT_FOUND at cold start.
+      noExternals: ["tslib"],
+    }),
+    react(),
+    tailwindcss(),
+    tsconfigPaths(),
+  ],
 });
