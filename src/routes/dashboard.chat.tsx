@@ -31,7 +31,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import { toast } from "sonner";
-import { api } from "@/lib/api";
+import { api, resolveBackendMediaUrl } from "@/lib/api";
 import type { AccountRec } from "@/lib/mockApi";
 import { accountDisplayName, avatarTone, telegramStyleInitials } from "@/lib/accountVisual";
 import { AccountAvatar, ConnectedAccountAvatar } from "@/components/AccountAvatar";
@@ -584,7 +584,7 @@ export function ChatPage() {
         text: messageBody(n),
         createdAt: msgTime(n),
         peerRead: !!n.peer_read,
-        avatarUrl: n.sender_avatar_url || null,
+        avatarUrl: resolveBackendMediaUrl(n.sender_avatar_url) || null,
         notificationId: Number(n.id),
         externalMessageId: n.external_message_id_int ?? null,
         replyToExternalMessageId: n.reply_to_external_message_id_int ?? null,
@@ -629,10 +629,11 @@ export function ChatPage() {
       for (const link of links) {
         const kind = mediaKindFromUrl(link);
         if (kind !== "image" && kind !== "video" && kind !== "sticker") continue;
-        const key = `${kind}:${link}`;
+        const resolved = resolveBackendMediaUrl(link);
+        const key = `${kind}:${resolved}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        out.push({ url: link, kind });
+        out.push({ url: resolved, kind });
       }
     }
     return out;
@@ -801,7 +802,7 @@ export function ChatPage() {
     const firstUrl = extractUrls(msg.text)[0];
     if (firstUrl) {
       const link = document.createElement("a");
-      link.href = firstUrl;
+      link.href = resolveBackendMediaUrl(firstUrl);
       link.target = "_blank";
       link.rel = "noreferrer";
       link.download = "";
@@ -1067,9 +1068,10 @@ export function ChatPage() {
                 const avatarName = thread.personName || thread.chatName;
                 const isPinned = pinnedThreadOrder.includes(thread.id);
                 const isMuted = mutedThreadIds.includes(thread.id);
-                const threadAvatar = notifications.find(
+                const threadAvatarRaw = notifications.find(
                   (n) => notificationMatchesThread(n, thread) && !!n.sender_avatar_url,
                 )?.sender_avatar_url;
+                const threadAvatar = resolveBackendMediaUrl(threadAvatarRaw);
                 return (
                   <button
                     key={thread.id}
@@ -1155,10 +1157,12 @@ export function ChatPage() {
                     style={{ backgroundColor: avatarTone(selectedThread.personName) }}
                   >
                     {(() => {
-                      const avatarFromNotif = notifications.find(
-                        (n) =>
-                          notificationMatchesThread(n, selectedThread) && !!n.sender_avatar_url,
-                      )?.sender_avatar_url;
+                      const avatarFromNotif = resolveBackendMediaUrl(
+                        notifications.find(
+                          (n) =>
+                            notificationMatchesThread(n, selectedThread) && !!n.sender_avatar_url,
+                        )?.sender_avatar_url,
+                      );
                       return avatarFromNotif ? (
                         <img
                           src={avatarFromNotif}
@@ -1391,12 +1395,13 @@ export function ChatPage() {
                                           </div>
                                         )}
                                         {links.map((link) => {
+                                          const mediaUrl = resolveBackendMediaUrl(link);
                                           const gifLike = isGifLikeMedia(link, m.text);
                                           if (gifLike) {
                                             return (
                                               <div key={link} className="relative">
                                                 <video
-                                                  src={link}
+                                                  src={mediaUrl}
                                                   autoPlay
                                                   loop
                                                   muted
@@ -1413,7 +1418,7 @@ export function ChatPage() {
                                               <div key={link} className="relative">
                                                 {isAnimatedStickerUrl(link) ? (
                                                   <div className="rounded-lg bg-background/20 p-1">
-                                                    <TgsSticker url={link} className="h-40 w-40" />
+                                                    <TgsSticker url={mediaUrl} className="h-40 w-40" />
                                                   </div>
                                                 ) : (
                                                   <button
@@ -1424,12 +1429,12 @@ export function ChatPage() {
                                                         selectMessage(m.id);
                                                         return;
                                                       }
-                                                      openMediaViewer(link, "sticker");
+                                                      openMediaViewer(mediaUrl, "sticker");
                                                     }}
                                                     className="block"
                                                   >
                                                     <img
-                                                      src={link}
+                                                      src={mediaUrl}
                                                       alt="Sticker"
                                                       className="max-h-64 w-auto rounded-lg object-contain"
                                                       onError={(e) => {
@@ -1453,12 +1458,12 @@ export function ChatPage() {
                                                       selectMessage(m.id);
                                                       return;
                                                     }
-                                                    openMediaViewer(link, "image");
+                                                    openMediaViewer(mediaUrl, "image");
                                                   }}
                                                   className="block"
                                                 >
                                                   <img
-                                                    src={link}
+                                                    src={mediaUrl}
                                                     alt="Shared media"
                                                     className="max-h-80 w-full rounded-lg object-cover"
                                                   />
@@ -1477,12 +1482,12 @@ export function ChatPage() {
                                                       selectMessage(m.id);
                                                       return;
                                                     }
-                                                    openMediaViewer(link, "video");
+                                                    openMediaViewer(mediaUrl, "video");
                                                   }}
                                                   className="block w-full"
                                                 >
                                                   <video
-                                                    src={link}
+                                                    src={mediaUrl}
                                                     muted
                                                     playsInline
                                                     className="max-h-80 w-full rounded-lg"
@@ -1494,7 +1499,7 @@ export function ChatPage() {
                                           if (mediaKind === "audio") {
                                             return (
                                               <div key={link} className="space-y-2">
-                                                <audio src={link} controls className="w-full" />
+                                                <audio src={mediaUrl} controls className="w-full" />
                                               </div>
                                             );
                                           }
@@ -1502,7 +1507,7 @@ export function ChatPage() {
                                             <div key={link} className="flex items-center gap-2">
                                               <FileText className="h-4 w-4" />
                                               <a
-                                                href={link}
+                                                href={mediaUrl}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className={`break-all text-xs underline ${m.from === "me" ? "text-white/90" : "text-primary"}`}

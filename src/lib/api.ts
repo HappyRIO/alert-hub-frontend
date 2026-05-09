@@ -1,6 +1,28 @@
 const API_BASE =
   (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") || "http://localhost:8000/api";
 
+function apiOrigin(): string {
+  try {
+    return new URL(API_BASE).origin;
+  } catch {
+    return "http://localhost:8000";
+  }
+}
+
+/** Media/notifications may store absolute URLs built with a dev `public_base_url`. Point them at the configured API host. */
+export function resolveBackendMediaUrl(url: string | null | undefined): string {
+  if (url == null) return "";
+  const u = url.trim();
+  if (!u) return "";
+  const origin = apiOrigin();
+  for (const host of ["http://localhost:8000", "http://127.0.0.1:8000"]) {
+    if (u.startsWith(`${host}/`) || u === host) {
+      return origin + u.slice(host.length);
+    }
+  }
+  return u;
+}
+
 const ACCESS_KEY = "alerthub_access_token";
 const REFRESH_KEY = "alerthub_refresh_token";
 

@@ -15,7 +15,7 @@ import {
   X,
   Trash2,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, resolveBackendMediaUrl } from "@/lib/api";
 import type { AccountRec } from "@/lib/mockApi";
 import { ConnectedAccountAvatar } from "@/components/AccountAvatar";
 import { Button } from "@/components/ui/button";
@@ -519,12 +519,13 @@ export function NotificationsCard() {
                     </p>
                     <div className="mt-2 space-y-2">
                       {links.map((link) => {
+                        const mediaUrl = resolveBackendMediaUrl(link);
                         const gifLike = isGifLikeMedia(link, rawText);
                         if (gifLike) {
                           return (
                             <video
                               key={link}
-                              src={link}
+                              src={mediaUrl}
                               autoPlay
                               loop
                               muted
@@ -538,12 +539,12 @@ export function NotificationsCard() {
                         if (mediaKind === "sticker") {
                           return isAnimatedStickerUrl(link) ? (
                             <div key={link} className="w-fit rounded-lg border border-border/70 p-1">
-                              <TgsSticker url={link} className="h-24 w-24" />
+                              <TgsSticker url={mediaUrl} className="h-24 w-24" />
                             </div>
                           ) : (
                             <img
                               key={link}
-                              src={link}
+                              src={mediaUrl}
                               alt="Sticker"
                               className="max-h-28 w-auto rounded-lg object-contain"
                             />
@@ -553,7 +554,7 @@ export function NotificationsCard() {
                           return (
                             <img
                               key={link}
-                              src={link}
+                              src={mediaUrl}
                               alt="Shared media"
                               className="max-h-72 w-full max-w-md rounded-lg object-cover"
                             />
@@ -563,19 +564,19 @@ export function NotificationsCard() {
                           return (
                             <video
                               key={link}
-                              src={link}
+                              src={mediaUrl}
                               controls
                               className="max-h-72 w-full max-w-md rounded-lg"
                             />
                           );
                         }
                         if (mediaKind === "audio") {
-                          return <audio key={link} src={link} controls className="w-full max-w-md" />;
+                          return <audio key={link} src={mediaUrl} controls className="w-full max-w-md" />;
                         }
                         return (
                           <a
                             key={link}
-                            href={link}
+                            href={mediaUrl}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-block break-all text-xs text-primary underline"

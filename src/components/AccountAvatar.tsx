@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { VolumeX } from "lucide-react";
 import type { AccountRec } from "@/lib/mockApi";
+import { resolveBackendMediaUrl } from "@/lib/api";
 import { accountDisplayName, avatarTone, telegramStyleInitials } from "@/lib/accountVisual";
 
 /** Connected Telegram account: real photo from API only; initials if missing or broken. */
@@ -19,7 +20,7 @@ export function AccountAvatar({
   muted?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const url = (account.avatar_url || "").trim();
+  const url = resolveBackendMediaUrl(account.avatar_url);
   const name = accountDisplayName(account);
   const initials = telegramStyleInitials(name);
   const showImg = Boolean(url) && !failed;
@@ -73,7 +74,7 @@ export function ConnectedAccountAvatar({
   textClassName?: string;
 }) {
   const [failed, setFailed] = useState(false);
-  const url = (avatarUrl || "").trim();
+  const url = resolveBackendMediaUrl(avatarUrl);
   const initials = telegramStyleInitials(displayName);
   const showImg = Boolean(url) && !failed;
 
