@@ -1,14 +1,35 @@
 import { g as getDefaultExportFromCjs } from "./react.mjs";
-var lottie$2 = { exports: {} };
-var lottie$1 = lottie$2.exports;
+function _mergeNamespaces(n, m) {
+  for (var i = 0; i < m.length; i++) {
+    const e = m[i];
+    if (typeof e !== "string" && !Array.isArray(e)) {
+      for (const k in e) {
+        if (k !== "default" && !(k in n)) {
+          const d = Object.getOwnPropertyDescriptor(e, k);
+          if (d) {
+            Object.defineProperty(n, k, d.get ? d : {
+              enumerable: true,
+              get: function() {
+                return e[k];
+              }
+            });
+          }
+        }
+      }
+    }
+  }
+  return Object.freeze(n);
+}
+var lottie$3 = { exports: {} };
+var lottie$2 = lottie$3.exports;
 var hasRequiredLottie;
 function requireLottie() {
-  if (hasRequiredLottie) return lottie$2.exports;
+  if (hasRequiredLottie) return lottie$3.exports;
   hasRequiredLottie = 1;
   (function(module, exports) {
     typeof document !== "undefined" && typeof navigator !== "undefined" && (function(global, factory) {
       module.exports = factory();
-    })(lottie$1, (function() {
+    })(lottie$2, (function() {
       var svgNS = "http://www.w3.org/2000/svg";
       var locationHref = "";
       var _useWebWorker = false;
@@ -16251,11 +16272,15 @@ function requireLottie() {
       registerEffect(35, CVTransformEffect);
       return lottie;
     }));
-  })(lottie$2, lottie$2.exports);
-  return lottie$2.exports;
+  })(lottie$3, lottie$3.exports);
+  return lottie$3.exports;
 }
 var lottieExports = /* @__PURE__ */ requireLottie();
 const lottie = /* @__PURE__ */ getDefaultExportFromCjs(lottieExports);
+const lottie$1 = /* @__PURE__ */ _mergeNamespaces({
+  __proto__: null,
+  default: lottie
+}, [lottieExports]);
 export {
-  lottie as l
+  lottie$1 as l
 };
