@@ -11,6 +11,8 @@ export default defineConfig({
     host: true,
     port: process.env.PORT ? Number(process.env.PORT) : 4173,
     strictPort: true,
+    // Vite host check: allow any Render Web Service hostname (*.onrender.com).
+    allowedHosts: [".onrender.com"],
   },
   plugins: [
     tanstackStart(),
