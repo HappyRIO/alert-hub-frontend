@@ -1,0 +1,1 @@
+import{j as o}from"./index-C-hbG3YJ.js";import{A as t}from"./AppLayout-D8Bel_fw.js";import{N as i}from"./NotificationsCard-DLizwjYf.js";import"./AppSidebar-CLvpMbKp.js";import"./index-BxyWRYho.js";import"./sparkles-BLOrklaE.js";const e=()=>o.jsx(t,{title:"Notifications",children:o.jsx(i,{})});export{e as component};

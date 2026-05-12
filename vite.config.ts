@@ -6,6 +6,12 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  // Render (and similar) require listening on all interfaces and the platform $PORT.
+  preview: {
+    host: true,
+    port: process.env.PORT ? Number(process.env.PORT) : 4173,
+    strictPort: true,
+  },
   plugins: [
     tanstackStart(),
     nitro({

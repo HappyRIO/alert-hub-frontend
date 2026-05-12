@@ -1,0 +1,1 @@
+import{j as t,O as o}from"./index-C-hbG3YJ.js";import{A as p}from"./AppLayout-D8Bel_fw.js";import"./AppSidebar-CLvpMbKp.js";import"./index-BxyWRYho.js";import"./sparkles-BLOrklaE.js";const e=()=>t.jsx(p,{title:"Accounts",children:t.jsx(o,{})});export{e as component};
