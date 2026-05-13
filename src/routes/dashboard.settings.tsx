@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Bell, Eye, EyeOff, Mail, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { api, tokens } from "@/lib/api";
+import { disableWebPush, enableWebPush, webPushSupported } from "@/lib/webPush";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,11 +58,31 @@ export function SettingsPage() {
   const togglePush = async (v: boolean) => {
     setPushBusy(true);
     try {
-      await api("/push/state", { method: "PUT", body: JSON.stringify({ enabled: v }) });
-      setPushOn(v);
-      toast.success(v ? "Push notifications enabled" : "Push notifications disabled");
-    } catch (e: any) { toast.error(e.message); }
-    finally { setPushBusy(false); }
+      if (v) {
+        if (!webPushSupported()) {
+          toast.error("This browser does not support web push.");
+          return;
+        }
+        await enableWebPush();
+        try {
+          await api("/push/state", { method: "PUT", body: JSON.stringify({ enabled: true }) });
+        } catch (e) {
+          await disableWebPush();
+          throw e;
+        }
+        setPushOn(true);
+        toast.success("Push notifications enabled");
+      } else {
+        await disableWebPush();
+        await api("/push/state", { method: "PUT", body: JSON.stringify({ enabled: false }) });
+        setPushOn(false);
+        toast.success("Push notifications disabled");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Push setup failed");
+    } finally {
+      setPushBusy(false);
+    }
   };
 
   const updateEmail = async (e: React.FormEvent) => {

@@ -1,1 +1,0 @@
-import{j as t,S as o}from"./index-C-hbG3YJ.js";import{A as p}from"./AppLayout-D8Bel_fw.js";import"./AppSidebar-CLvpMbKp.js";import"./index-BxyWRYho.js";import"./sparkles-BLOrklaE.js";const n=()=>t.jsx(p,{title:"Settings",children:t.jsx(o,{})});export{n as component};

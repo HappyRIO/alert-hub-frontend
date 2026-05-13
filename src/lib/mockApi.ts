@@ -528,6 +528,7 @@ export function handleMock(
     return delay(ok({ enabled: db.pushEnabled }));
   }
   if (path === "/push/subscribe" && M === "POST") return delay(ok({ ok: true }));
+  if (path === "/push/unsubscribe" && M === "POST") return delay(ok({ ok: true, removed: 1 }));
   if (path === "/push/test" && M === "POST") return delay(ok({ ok: true }));
 
   return delay(err(404, `Mock: ${M} ${path} not implemented`));
